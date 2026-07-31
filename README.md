@@ -43,8 +43,17 @@ and what is driving profit loss?
    are consistently peak months every year. January always drops sharply 
    after the holiday season.
 
+7. Regional Discount Behavior: Central region has the worst profit margin (8.06%) and also 
+the most orders with heavy discounts (475 orders at 30%+, 
+losing $94.85 per order on average). West has the best margin 
+(14.86%) and fewest heavy discount orders (116). The data 
+strongly suggests Central's aggressive discounting strategy 
+is the primary driver of its poor profitability.
+
 ## Recommendation
-1. Cap discounts at 20% — anything above loses money per order
+1. Cap discounts at 20% — especially in Central, 
+which has 475 orders at 30%+ discounts losing $94.85 per order, 
+the primary driver of its 8.06% margin vs West's 14.86%.
 2. Audit Tables and Bookcases pricing — both run at a net loss
 3. Invest in growing the Home Office segment — highest margin, most 
    underserved, only 148 customers vs 409 Consumer customers
