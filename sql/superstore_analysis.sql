@@ -30,14 +30,14 @@ ORDER BY profit_margin_pct DESC;
 -- ============================================================
 
 SELECT
+    region,
     category,
-    COUNT(DISTINCT order_id)                    AS total_orders,
     ROUND(SUM(sales), 0)                        AS revenue,
     ROUND(SUM(profit), 0)                       AS profit,
     ROUND(SUM(profit)/SUM(sales)*100, 2)        AS category_profit_margin_pct
 FROM superstore
-GROUP BY category
-ORDER BY category_profit_margin_pct DESC;
+GROUP BY region, category
+ORDER BY region, category_profit_margin_pct DESC;
 
 
 -- ============================================================
@@ -68,6 +68,7 @@ ORDER BY profit ASC;
 -- ============================================================
 
 SELECT
+    region,
     CASE
         WHEN discount = 0                       THEN '0% — No discount'
         WHEN discount BETWEEN 0.01 AND 0.10     THEN '1-10% — Small'
@@ -76,13 +77,11 @@ SELECT
         ELSE '30%+ — Heavy discount'
     END                                         AS discount_bucket,
     COUNT(*)                                    AS total_orders,
-    ROUND(SUM(sales), 0)                        AS total_revenue,
     ROUND(SUM(profit), 0)                       AS total_profit,
     ROUND(AVG(profit), 2)                       AS avg_profit_per_order
 FROM superstore
-GROUP BY discount_bucket
-ORDER BY avg_profit_per_order DESC;
-
+GROUP BY region, discount_bucket
+ORDER BY region, avg_profit_per_order DESC;
 
 -- ============================================================
 -- QUERY 5: Customer Segment Value
@@ -112,26 +111,31 @@ ORDER BY profit_margin_pct DESC;
 --           January always drops sharply after holiday season
 -- ============================================================
 
-WITH monthly_data AS (
+WITH monthly AS (
     SELECT
-        DATE_FORMAT(order_date, '%Y-%m')                        AS year_month,
-        COUNT(DISTINCT order_id)                                AS total_orders,
-        ROUND(SUM(sales), 0)                                    AS current_sales,
-        ROUND(SUM(profit), 0)                                   AS current_profit,
-        ROUND(LAG(SUM(sales)) OVER (
-              ORDER BY DATE_FORMAT(order_date, '%Y-%m')), 0)    AS previous_month_sales
+        region,
+        DATE_FORMAT(order_date, '%Y-%m')        AS year_month_,
+        COUNT(DISTINCT order_id)                AS total_orders,
+        ROUND(SUM(sales), 0)                    AS current_sales,
+        ROUND(SUM(profit), 0)                   AS current_profit
     FROM superstore
-    GROUP BY DATE_FORMAT(order_date, '%Y-%m')
+    GROUP BY region, DATE_FORMAT(order_date, '%Y-%m')
 )
 SELECT
-    year_month,
+    region,
+    year_month_,
     total_orders,
     current_sales,
-    previous_month_sales,
+    current_profit,
+    LAG(current_sales) OVER (
+        PARTITION BY region
+        ORDER BY year_month_
+    )                                           AS previous_month_sales,
     ROUND(
-        (current_sales - previous_month_sales)
-        / previous_month_sales * 100
-    , 2)                                                        AS mom_growth_pct,
-    current_profit
-FROM monthly_data
-ORDER BY year_month;
+        (current_sales - LAG(current_sales) OVER (
+            PARTITION BY region ORDER BY year_month_))
+        / LAG(current_sales) OVER (
+            PARTITION BY region ORDER BY year_month_) * 100
+    , 1)                                        AS mom_growth_pct
+FROM monthly
+ORDER BY region, year_month_;
