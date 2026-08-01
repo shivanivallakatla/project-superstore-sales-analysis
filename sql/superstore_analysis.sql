@@ -68,7 +68,6 @@ ORDER BY profit ASC;
 -- ============================================================
 
 SELECT
-    region,
     CASE
         WHEN discount = 0                       THEN '0% — No discount'
         WHEN discount BETWEEN 0.01 AND 0.10     THEN '1-10% — Small'
@@ -77,11 +76,12 @@ SELECT
         ELSE '30%+ — Heavy discount'
     END                                         AS discount_bucket,
     COUNT(*)                                    AS total_orders,
+    ROUND(SUM(sales), 0)                        AS total_revenue,
     ROUND(SUM(profit), 0)                       AS total_profit,
     ROUND(AVG(profit), 2)                       AS avg_profit_per_order
 FROM superstore
-GROUP BY region, discount_bucket
-ORDER BY region, avg_profit_per_order DESC;
+GROUP BY discount_bucket
+ORDER BY MIN(discount) ASC;
 
 -- ============================================================
 -- QUERY 5: Customer Segment Value
