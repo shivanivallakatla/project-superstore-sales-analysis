@@ -59,7 +59,7 @@ the primary driver of its 8.06% margin vs West's 14.86%.
    underserved, only 148 customers vs 409 Consumer customers
 
 ## Dashboard
-
+https://public.tableau.com/app/profile/shivani.vallakatla/viz/Superstore_Sales_Performance_Analysis/SuperstoreSalesPerformanceAnalysis
 
 ## SQL Queries
 All 6 analysis queries with comments are in the /sql folder.
